@@ -12,6 +12,7 @@ const config: Config = {
         forest: {
           50: "#eef8f2",
           100: "#d6eddf",
+          200: "#afdcc2",
           500: "#23885f",
           600: "#1d6f50",
           700: "#165840",
