@@ -28,66 +28,74 @@ function assertPaymentMethod(value: string): asserts value is PaymentMethod {
 
 export async function submitMemberApplication(formData: FormData) {
   const supabase = createClient();
+  let failureMessage = "";
 
-  const name = readRequired(formData, "name");
-  const studentId = readRequired(formData, "student_id");
-  const majorClass = readRequired(formData, "major_class");
-  const phone = readRequired(formData, "phone");
-  const planValue = readRequired(formData, "plan");
-  const paymentValue = readRequired(formData, "payment_method");
-  const remark = String(formData.get("remark") || "").trim();
-  const screenshot = formData.get("payment_screenshot");
+  try {
+    const name = readRequired(formData, "name");
+    const studentId = readRequired(formData, "student_id");
+    const majorClass = readRequired(formData, "major_class");
+    const phone = readRequired(formData, "phone");
+    const planValue = readRequired(formData, "plan");
+    const paymentValue = readRequired(formData, "payment_method");
+    const remark = String(formData.get("remark") || "").trim();
+    const screenshot = formData.get("payment_screenshot");
 
-  assertPlan(planValue);
-  assertPaymentMethod(paymentValue);
+    assertPlan(planValue);
+    assertPaymentMethod(paymentValue);
 
-  if (!(screenshot instanceof File) || screenshot.size === 0) {
-    throw new Error("请上传付款截图");
-  }
+    if (!(screenshot instanceof File) || screenshot.size === 0) {
+      throw new Error("请上传付款截图");
+    }
 
-  if (!screenshot.type.startsWith("image/")) {
-    throw new Error("付款截图必须是图片文件");
-  }
+    if (!screenshot.type.startsWith("image/")) {
+      throw new Error("付款截图必须是图片文件");
+    }
 
-  if (screenshot.size > 5 * 1024 * 1024) {
-    throw new Error("付款截图不能超过 5MB");
-  }
+    if (screenshot.size > 5 * 1024 * 1024) {
+      throw new Error("付款截图不能超过 5MB");
+    }
 
-  const extension = screenshot.name.split(".").pop() || "png";
-  const objectPath = `${studentId}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
+    const extension = screenshot.name.split(".").pop() || "png";
+    const objectPath = `${studentId}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
 
-  const { error: uploadError } = await supabase.storage
-    .from("payment-screenshots")
-    .upload(objectPath, screenshot, {
-      contentType: screenshot.type,
-      upsert: false,
+    const { error: uploadError } = await supabase.storage
+      .from("payment-screenshots")
+      .upload(objectPath, screenshot, {
+        contentType: screenshot.type,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      throw new Error(`付款截图上传失败：${uploadError.message}`);
+    }
+
+    const plan = PLANS[planValue];
+    const { error } = await supabase.from("members").insert({
+      name,
+      student_id: studentId,
+      major_class: majorClass,
+      phone,
+      plan: planValue,
+      amount: plan.amount,
+      payment_method: paymentValue,
+      payment_screenshot_url: objectPath,
+      status: "pending",
+      remark,
     });
 
-  if (uploadError) {
-    throw new Error(uploadError.message);
+    if (error) {
+      throw new Error(`会员申请写入失败：${error.message}`);
+    }
+  } catch (error) {
+    failureMessage = error instanceof Error ? error.message : "会员申请提交失败，请稍后再试";
   }
 
-  const plan = PLANS[planValue];
-  const { error } = await supabase.from("members").insert({
-    name,
-    student_id: studentId,
-    major_class: majorClass,
-    phone,
-    plan: planValue,
-    amount: plan.amount,
-    payment_method: paymentValue,
-    payment_screenshot_url: objectPath,
-    status: "pending",
-    remark,
-  });
-
-  if (error) {
-    throw new Error(error.message);
+  if (failureMessage) {
+    redirect(`/apply-error?message=${encodeURIComponent(failureMessage)}`);
   }
 
   redirect("/apply-success");
 }
-
 export async function submitFeedback(formData: FormData) {
   const supabase = createClient();
 
