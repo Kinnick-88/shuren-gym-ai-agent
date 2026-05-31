@@ -1,4 +1,5 @@
-import { Clock, MapPin, ShieldCheck, Sparkles } from "lucide-react";
+
+import { BadgeAlert, Clock, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import { submitFeedback, submitMemberApplication } from "@/app/actions";
 import { SectionTitle } from "@/components/SectionTitle";
 import { SubmitButton } from "@/components/SubmitButton";
@@ -23,11 +24,19 @@ export default function HomePage() {
             <div className="mt-8 grid gap-3 text-sm text-forest-50 sm:grid-cols-2">
               <div className="flex items-center gap-3 rounded-lg border border-white/15 bg-white/10 p-4">
                 <MapPin className="h-5 w-5 text-campus-gold" />
-                浙江树人学院杨汛桥校区健身房
+                地点：浙江树人学院杨汛桥校区游泳馆二楼
               </div>
               <div className="flex items-center gap-3 rounded-lg border border-white/15 bg-white/10 p-4">
                 <Clock className="h-5 w-5 text-campus-gold" />
-                营业时间：每日 09:00 - 22:00
+                营业时间：每日 10:00 - 20:00
+              </div>
+              <div className="flex items-center gap-3 rounded-lg border border-white/15 bg-white/10 p-4 sm:col-span-2">
+                <BadgeAlert className="h-5 w-5 text-campus-gold" />
+                周三 18:00 - 19:20 因课程安排不对外开放
+              </div>
+              <div className="flex items-center gap-3 rounded-lg border border-white/15 bg-white/10 p-4 sm:col-span-2">
+                <Phone className="h-5 w-5 text-campus-gold" />
+                管理人员联系方式：16609405727
               </div>
             </div>
           </div>
@@ -63,6 +72,14 @@ export default function HomePage() {
           <div className="mt-6 grid gap-4 rounded-lg bg-slate-50 p-4 sm:grid-cols-2">
             <QrCard title="微信收款码" imageUrl={wechatQr} />
             <QrCard title="支付宝收款码" imageUrl={alipayQr} />
+          </div>
+
+          <div className="mt-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+            <p className="font-bold">办卡声明</p>
+            <p className="mt-2">
+              会员办理后不得退费。会员可转售给其他学生，但需联系管理人员登记转售同学的信息后方可生效。
+              管理人员联系方式：16609405727。最终解释权归学校健身房所有。
+            </p>
           </div>
 
           <form action={submitMemberApplication} className="mt-6 grid gap-4 sm:grid-cols-2">
