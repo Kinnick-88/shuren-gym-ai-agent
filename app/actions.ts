@@ -1,3 +1,4 @@
+
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -188,6 +189,58 @@ export async function updateApprovedMember(memberId: string, formData: FormData)
     })
     .eq("id", memberId)
     .eq("status", "approved");
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+}
+
+export async function createApprovedMember(formData: FormData) {
+  await requireAdmin();
+
+  const name = readRequired(formData, "name");
+  const studentId = readRequired(formData, "student_id");
+  const majorClass = readRequired(formData, "major_class");
+  const phone = readRequired(formData, "phone");
+  const planValue = readRequired(formData, "plan");
+  const paymentValue = readRequired(formData, "payment_method");
+  const startDate = readRequired(formData, "start_date");
+  const endDate = readRequired(formData, "end_date");
+  const remark = String(formData.get("remark") || "").trim();
+
+  assertPlan(planValue);
+  assertPaymentMethod(paymentValue);
+
+  const supabase = createClient();
+  const { error } = await supabase.from("members").insert({
+    name,
+    student_id: studentId,
+    major_class: majorClass,
+    phone,
+    plan: planValue,
+    amount: PLANS[planValue].amount,
+    payment_method: paymentValue,
+    payment_screenshot_url: null,
+    status: "approved",
+    start_date: startDate,
+    end_date: endDate,
+    remark,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+}
+
+export async function deleteApprovedMember(memberId: string) {
+  await requireAdmin();
+
+  const supabase = createClient();
+  const { error } = await supabase.from("members").delete().eq("id", memberId).eq("status", "approved");
 
   if (error) {
     throw new Error(error.message);
