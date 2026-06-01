@@ -96,6 +96,7 @@ export async function submitMemberApplication(formData: FormData) {
 
   redirect("/apply-success");
 }
+
 export async function submitFeedback(formData: FormData) {
   const supabase = createClient();
 
@@ -150,6 +151,43 @@ export async function reviewMemberApplication(memberId: string, status: MemberSt
   }
 
   const { error } = await supabase.from("members").update(payload).eq("id", memberId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/admin");
+}
+
+export async function updateApprovedMember(memberId: string, formData: FormData) {
+  await requireAdmin();
+
+  const name = readRequired(formData, "name");
+  const studentId = readRequired(formData, "student_id");
+  const majorClass = readRequired(formData, "major_class");
+  const phone = readRequired(formData, "phone");
+  const planValue = readRequired(formData, "plan");
+  const startDate = readRequired(formData, "start_date");
+  const endDate = readRequired(formData, "end_date");
+
+  assertPlan(planValue);
+
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("members")
+    .update({
+      name,
+      student_id: studentId,
+      major_class: majorClass,
+      phone,
+      plan: planValue,
+      amount: PLANS[planValue].amount,
+      start_date: startDate,
+      end_date: endDate,
+      status: "approved",
+    })
+    .eq("id", memberId)
+    .eq("status", "approved");
 
   if (error) {
     throw new Error(error.message);
