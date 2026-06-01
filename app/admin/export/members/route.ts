@@ -13,7 +13,10 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const rows = ((data || []) as Member[]).map((member) => ({
+  const approvedMembers = ((data || []) as Member[]).filter((member) => member.status === "approved");
+  const totalIncome = approvedMembers.reduce((sum, member) => sum + Number(member.amount || 0), 0);
+
+  const rows = approvedMembers.map((member) => ({
     提交时间: dateText(member.created_at),
     姓名: member.name,
     学号: member.student_id,
@@ -28,6 +31,21 @@ export async function GET() {
     备注: member.remark,
   }));
 
+  rows.push({
+    提交时间: "",
+    姓名: "预计总收入",
+    学号: "",
+    专业班级: "",
+    手机号: "",
+    套餐: "",
+    金额: totalIncome,
+    付款方式: "",
+    状态: "已通过会员合计",
+    开始日期: "",
+    到期日期: "",
+    备注: "",
+  });
+
   return new NextResponse(toCsv(rows), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
@@ -35,3 +53,4 @@ export async function GET() {
     },
   });
 }
+
