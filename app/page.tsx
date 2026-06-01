@@ -1,12 +1,11 @@
-
 import { BadgeAlert, Clock, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import { submitFeedback, submitMemberApplication } from "@/app/actions";
 import { SectionTitle } from "@/components/SectionTitle";
 import { SubmitButton } from "@/components/SubmitButton";
 import { PLANS } from "@/lib/types";
 
-const wechatQr = process.env.NEXT_PUBLIC_WECHAT_QR_URL || "";
-const alipayQr = process.env.NEXT_PUBLIC_ALIPAY_QR_URL || "";
+const wechatQr = process.env.NEXT_PUBLIC_WECHAT_QR_URL || "/wechat-qr.png";
+const alipayQr = process.env.NEXT_PUBLIC_ALIPAY_QR_URL || "/alipay-qr.png";
 
 export default function HomePage() {
   return (
@@ -18,6 +17,10 @@ export default function HomePage() {
             <h1 className="mt-4 text-4xl font-bold leading-tight sm:text-5xl">
               树人健身房 AI 会员服务智能体
             </h1>
+            <p className="mt-4 max-w-2xl text-sm font-semibold leading-6 text-red-200">
+              杨汛桥校内健身房自 2024 年开放起就是会员制，健身房公约为校方制定，明确规定为会员制。
+              请大家遵守规定，会安排相关工作人员进行审核，逃卡私用会公示，请自觉遵守。
+            </p>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-forest-50">
               面向浙江树人学院杨汛桥校区会员，提供套餐咨询、线上办卡申请、付款截图提交和反馈收集。
             </p>
@@ -37,6 +40,10 @@ export default function HomePage() {
               <div className="flex items-center gap-3 rounded-lg border border-white/15 bg-white/10 p-4 sm:col-span-2">
                 <Phone className="h-5 w-5 text-campus-gold" />
                 管理人员联系方式：16609405727
+              </div>
+              <div className="flex items-center gap-3 rounded-lg border border-white/15 bg-white/10 p-4 sm:col-span-2">
+                <MapPin className="h-5 w-5 text-campus-gold" />
+                淋浴房：一楼大厅左转直走，男女淋浴间皆有
               </div>
             </div>
           </div>
@@ -78,7 +85,16 @@ export default function HomePage() {
             <p className="font-bold">办卡声明</p>
             <p className="mt-2">
               会员办理后不得退费。会员可转售给其他学生，但需联系管理人员登记转售同学的信息后方可生效。
+              所得皆用于校内健身房的运营，无盈利性质。社团是为广大师生服务。
               管理人员联系方式：16609405727。最终解释权归学校健身房所有。
+            </p>
+          </div>
+
+          <div className="mt-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-900">
+            <p className="font-bold">注意事项</p>
+            <p className="mt-2">
+              出现问题请第一时间联系工作人员。器械问题以及安全问题切莫自己处理。请大家仔细阅读器械说明书，
+              掌握正确训练方式，不得损坏器械。室内有监控，损坏器械者一经查出，将批评通报并罚款。
             </p>
           </div>
 
@@ -152,7 +168,6 @@ export default function HomePage() {
               <label className="field">
                 <span className="label">反馈类型</span>
                 <select className="input" name="feedback_type" required>
-                  <option>设备</option>
                   <option>环境</option>
                   <option>淋浴间</option>
                   <option>服务</option>
