@@ -1,3 +1,4 @@
+
 create extension if not exists pgcrypto;
 
 create table if not exists public.members (
@@ -38,6 +39,14 @@ alter table public.members enable row level security;
 alter table public.feedbacks enable row level security;
 alter table public.admin_users enable row level security;
 
+grant usage on schema public to anon, authenticated;
+grant insert on table public.members to anon, authenticated;
+grant delete on table public.members to authenticated;
+grant insert on table public.feedbacks to anon, authenticated;
+grant select on table public.admin_users to authenticated;
+grant select, update on table public.members to authenticated;
+grant select on table public.feedbacks to authenticated;
+
 drop policy if exists "admin users can read own admin row" on public.admin_users;
 create policy "admin users can read own admin row"
 on public.admin_users
@@ -58,6 +67,20 @@ with check (
   and (
     (plan = 'month' and amount = 200)
     or (plan = 'year' and amount = 365)
+  )
+);
+
+drop policy if exists "admins can create members" on public.members;
+create policy "admins can create members"
+on public.members
+for insert
+to authenticated
+with check (
+  exists (
+    select 1
+    from public.admin_users
+    where email = (auth.jwt() ->> 'email')
+      and role = 'admin'
   )
 );
 
@@ -89,6 +112,20 @@ using (
   )
 )
 with check (
+  exists (
+    select 1
+    from public.admin_users
+    where email = (auth.jwt() ->> 'email')
+      and role = 'admin'
+  )
+);
+
+drop policy if exists "admins can delete members" on public.members;
+create policy "admins can delete members"
+on public.members
+for delete
+to authenticated
+using (
   exists (
     select 1
     from public.admin_users
