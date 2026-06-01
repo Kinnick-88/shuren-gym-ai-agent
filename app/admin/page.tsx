@@ -159,10 +159,10 @@ export default async function AdminPage() {
               审核通过的会员会同步显示在这里，可新增、删除，并直接修改学号、专业班级、姓名、套餐、电话、开卡日期和到期日期。
             </p>
           </div>
-          <div className="grid gap-4 p-5">
+          <div className="grid gap-5 p-5">
             <form
               action={createApprovedMember}
-              className="grid gap-3 rounded border border-forest-100 bg-forest-50/60 p-4 lg:grid-cols-[1fr_1fr_1.2fr_1fr_0.8fr_0.8fr_1fr_1fr_1.2fr_auto]"
+              className="grid gap-4 rounded border border-forest-100 bg-forest-50/60 p-4 md:grid-cols-2 xl:grid-cols-4"
             >
               <Field label="姓名" name="name" defaultValue="" />
               <Field label="学号" name="student_id" defaultValue="" />
@@ -173,18 +173,18 @@ export default async function AdminPage() {
               <Field label="开卡日期" name="start_date" type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
               <Field label="到期日期" name="end_date" type="date" defaultValue="" />
               <Field label="备注" name="remark" defaultValue="" required={false} />
-              <div className="flex items-end">
-                <button className="btn-secondary h-10 w-full justify-center gap-2 text-forest-700" type="submit">
+              <div className="flex items-end md:col-span-2 xl:col-span-4 xl:justify-end">
+                <button className="btn-secondary h-10 w-full justify-center gap-2 text-forest-700 sm:w-auto" type="submit">
                   <Plus className="h-4 w-4" />
                   添加
                 </button>
               </div>
             </form>
             {approvedMembers.map((member) => (
-              <div className="grid gap-3 rounded border border-slate-200 bg-white p-4 lg:grid-cols-[1fr_auto] lg:items-end" key={member.id}>
+              <div className="grid gap-4 rounded border border-slate-200 bg-white p-4 xl:grid-cols-[minmax(0,1fr)_7rem] xl:items-end" key={member.id}>
                 <form
                   action={updateApprovedMember.bind(null, member.id)}
-                  className="grid gap-3 lg:grid-cols-[1fr_1fr_1.2fr_1fr_0.8fr_1fr_1fr_auto]"
+                  className="grid min-w-0 gap-4 md:grid-cols-2 xl:grid-cols-4"
                 >
                   <Field label="姓名" name="name" defaultValue={member.name} />
                   <Field label="学号" name="student_id" defaultValue={member.student_id} />
@@ -193,8 +193,8 @@ export default async function AdminPage() {
                   <PlanField defaultValue={member.plan} />
                   <Field label="开卡日期" name="start_date" type="date" defaultValue={member.start_date || ""} />
                   <Field label="到期日期" name="end_date" type="date" defaultValue={member.end_date || ""} />
-                  <div className="flex items-end">
-                    <button className="btn-secondary h-10 w-full justify-center gap-2 text-forest-700" type="submit">
+                  <div className="flex items-end md:col-span-2 xl:col-span-4 xl:justify-end">
+                    <button className="btn-secondary h-10 w-full justify-center gap-2 text-forest-700 sm:w-auto" type="submit">
                       <Save className="h-4 w-4" />
                       保存
                     </button>
@@ -278,10 +278,10 @@ function Field({
   required?: boolean;
 }) {
   return (
-    <label className="grid gap-1 text-xs font-semibold text-slate-500">
+    <label className="grid min-w-0 gap-1 text-xs font-semibold text-slate-500">
       {label}
       <input
-        className="h-10 rounded border border-slate-200 px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
+        className="h-10 w-full min-w-0 rounded border border-slate-200 px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
         defaultValue={defaultValue}
         name={name}
         required={required}
@@ -293,10 +293,10 @@ function Field({
 
 function PlanField({ defaultValue = "month" }: { defaultValue?: Plan }) {
   return (
-    <label className="grid gap-1 text-xs font-semibold text-slate-500">
+    <label className="grid min-w-0 gap-1 text-xs font-semibold text-slate-500">
       套餐
       <select
-        className="h-10 rounded border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
+        className="h-10 w-full min-w-0 rounded border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
         defaultValue={defaultValue}
         name="plan"
       >
@@ -312,10 +312,10 @@ function PlanField({ defaultValue = "month" }: { defaultValue?: Plan }) {
 
 function PaymentField({ defaultValue = "wechat" }: { defaultValue?: PaymentMethod }) {
   return (
-    <label className="grid gap-1 text-xs font-semibold text-slate-500">
+    <label className="grid min-w-0 gap-1 text-xs font-semibold text-slate-500">
       付款
       <select
-        className="h-10 rounded border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
+        className="h-10 w-full min-w-0 rounded border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
         defaultValue={defaultValue}
         name="payment_method"
       >
