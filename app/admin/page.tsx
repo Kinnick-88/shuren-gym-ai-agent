@@ -1,6 +1,13 @@
+
 import Link from "next/link";
-import { Check, Download, Eye, LogOut, Save, X } from "lucide-react";
-import { reviewMemberApplication, signOutAdmin, updateApprovedMember } from "@/app/actions";
+import { Check, Download, Eye, LogOut, Plus, Save, Trash2, X } from "lucide-react";
+import {
+  createApprovedMember,
+  deleteApprovedMember,
+  reviewMemberApplication,
+  signOutAdmin,
+  updateApprovedMember,
+} from "@/app/actions";
 import { requireAdmin } from "@/lib/admin";
 import { createClient } from "@/lib/supabase/server";
 import { dateText } from "@/lib/csv";
@@ -27,9 +34,7 @@ export default async function AdminPage() {
   const feedbackRows = (feedbacks || []) as Feedback[];
   const approvedMembers = memberRows.filter((member) => member.status === "approved");
   const pendingMembers = memberRows.filter((member) => member.status === "pending");
-  const projectedIncome = memberRows
-    .filter((member) => member.status !== "rejected")
-    .reduce((sum, member) => sum + Number(member.amount || 0), 0);
+  const projectedIncome = approvedMembers.reduce((sum, member) => sum + Number(member.amount || 0), 0);
 
   const screenshotUrls = await createScreenshotMap(memberRows);
 
@@ -151,43 +156,57 @@ export default async function AdminPage() {
           <div className="border-b border-slate-200 p-5">
             <h2 className="text-xl font-bold text-slate-950">会员状态表</h2>
             <p className="mt-1 text-sm text-slate-500">
-              审核通过的会员会同步显示在这里，可直接修改学号、专业班级、姓名、套餐、电话、开卡日期和到期日期。
+              审核通过的会员会同步显示在这里，可新增、删除，并直接修改学号、专业班级、姓名、套餐、电话、开卡日期和到期日期。
             </p>
           </div>
           <div className="grid gap-4 p-5">
+            <form
+              action={createApprovedMember}
+              className="grid gap-3 rounded border border-forest-100 bg-forest-50/60 p-4 lg:grid-cols-[1fr_1fr_1.2fr_1fr_0.8fr_0.8fr_1fr_1fr_1.2fr_auto]"
+            >
+              <Field label="姓名" name="name" defaultValue="" />
+              <Field label="学号" name="student_id" defaultValue="" />
+              <Field label="专业班级" name="major_class" defaultValue="" />
+              <Field label="电话" name="phone" defaultValue="" />
+              <PlanField />
+              <PaymentField />
+              <Field label="开卡日期" name="start_date" type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
+              <Field label="到期日期" name="end_date" type="date" defaultValue="" />
+              <Field label="备注" name="remark" defaultValue="" required={false} />
+              <div className="flex items-end">
+                <button className="btn-secondary h-10 w-full justify-center gap-2 text-forest-700" type="submit">
+                  <Plus className="h-4 w-4" />
+                  添加
+                </button>
+              </div>
+            </form>
             {approvedMembers.map((member) => (
-              <form
-                action={updateApprovedMember.bind(null, member.id)}
-                className="grid gap-3 rounded border border-slate-200 bg-white p-4 lg:grid-cols-[1fr_1fr_1.2fr_1fr_0.8fr_1fr_1fr_auto]"
-                key={member.id}
-              >
-                <Field label="姓名" name="name" defaultValue={member.name} />
-                <Field label="学号" name="student_id" defaultValue={member.student_id} />
-                <Field label="专业班级" name="major_class" defaultValue={member.major_class} />
-                <Field label="电话" name="phone" defaultValue={member.phone} />
-                <label className="grid gap-1 text-xs font-semibold text-slate-500">
-                  套餐
-                  <select
-                    className="h-10 rounded border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
-                    defaultValue={member.plan}
-                    name="plan"
-                  >
-                    {Object.entries(PLANS).map(([value, plan]) => (
-                      <option key={value} value={value}>
-                        {plan.label} ¥{plan.amount}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <Field label="开卡日期" name="start_date" type="date" defaultValue={member.start_date || ""} />
-                <Field label="到期日期" name="end_date" type="date" defaultValue={member.end_date || ""} />
-                <div className="flex items-end">
-                  <button className="btn-secondary h-10 w-full justify-center gap-2 text-forest-700" type="submit">
-                    <Save className="h-4 w-4" />
-                    保存
+              <div className="grid gap-3 rounded border border-slate-200 bg-white p-4 lg:grid-cols-[1fr_auto] lg:items-end" key={member.id}>
+                <form
+                  action={updateApprovedMember.bind(null, member.id)}
+                  className="grid gap-3 lg:grid-cols-[1fr_1fr_1.2fr_1fr_0.8fr_1fr_1fr_auto]"
+                >
+                  <Field label="姓名" name="name" defaultValue={member.name} />
+                  <Field label="学号" name="student_id" defaultValue={member.student_id} />
+                  <Field label="专业班级" name="major_class" defaultValue={member.major_class} />
+                  <Field label="电话" name="phone" defaultValue={member.phone} />
+                  <PlanField defaultValue={member.plan} />
+                  <Field label="开卡日期" name="start_date" type="date" defaultValue={member.start_date || ""} />
+                  <Field label="到期日期" name="end_date" type="date" defaultValue={member.end_date || ""} />
+                  <div className="flex items-end">
+                    <button className="btn-secondary h-10 w-full justify-center gap-2 text-forest-700" type="submit">
+                      <Save className="h-4 w-4" />
+                      保存
+                    </button>
+                  </div>
+                </form>
+                <form action={deleteApprovedMember.bind(null, member.id)} className="flex items-end">
+                  <button className="btn-secondary h-10 w-full justify-center gap-2 text-red-600" type="submit">
+                    <Trash2 className="h-4 w-4" />
+                    删除
                   </button>
-                </div>
-              </form>
+                </form>
+              </div>
             ))}
             {!approvedMembers.length ? (
               <p className="rounded border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
@@ -250,11 +269,13 @@ function Field({
   name,
   defaultValue,
   type = "text",
+  required = true,
 }: {
   label: string;
   name: string;
   defaultValue: string;
   type?: string;
+  required?: boolean;
 }) {
   return (
     <label className="grid gap-1 text-xs font-semibold text-slate-500">
@@ -263,9 +284,47 @@ function Field({
         className="h-10 rounded border border-slate-200 px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
         defaultValue={defaultValue}
         name={name}
-        required
+        required={required}
         type={type}
       />
+    </label>
+  );
+}
+
+function PlanField({ defaultValue = "month" }: { defaultValue?: Plan }) {
+  return (
+    <label className="grid gap-1 text-xs font-semibold text-slate-500">
+      套餐
+      <select
+        className="h-10 rounded border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
+        defaultValue={defaultValue}
+        name="plan"
+      >
+        {Object.entries(PLANS).map(([value, plan]) => (
+          <option key={value} value={value}>
+            {plan.label} ¥{plan.amount}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function PaymentField({ defaultValue = "wechat" }: { defaultValue?: PaymentMethod }) {
+  return (
+    <label className="grid gap-1 text-xs font-semibold text-slate-500">
+      付款
+      <select
+        className="h-10 rounded border border-slate-200 bg-white px-3 text-sm font-medium text-slate-900 outline-none focus:border-forest-500"
+        defaultValue={defaultValue}
+        name="payment_method"
+      >
+        {Object.entries(PAYMENT_METHODS).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }
