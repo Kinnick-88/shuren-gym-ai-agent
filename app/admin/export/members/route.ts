@@ -16,7 +16,7 @@ export async function GET() {
   const approvedMembers = ((data || []) as Member[]).filter((member) => member.status === "approved");
   const totalIncome = approvedMembers.reduce((sum, member) => sum + Number(member.amount || 0), 0);
 
-  const rows = approvedMembers.map((member) => ({
+  const rows: Array<Record<string, string | number | null>> = approvedMembers.map((member) => ({
     提交时间: dateText(member.created_at),
     姓名: member.name,
     学号: member.student_id,
@@ -25,7 +25,7 @@ export async function GET() {
     套餐: PLANS[member.plan as Plan]?.label || member.plan,
     金额: member.amount,
     付款方式: PAYMENT_METHODS[member.payment_method as PaymentMethod] || member.payment_method,
-    状态: member.status,
+    状态: "已通过",
     开始日期: member.start_date,
     到期日期: member.end_date,
     备注: member.remark,
@@ -40,7 +40,7 @@ export async function GET() {
     套餐: "",
     金额: totalIncome,
     付款方式: "",
-    状态: "已通过会员合计",
+    状态: "合计",
     开始日期: "",
     到期日期: "",
     备注: "",
