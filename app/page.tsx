@@ -4,8 +4,8 @@ import { SectionTitle } from "@/components/SectionTitle";
 import { SubmitButton } from "@/components/SubmitButton";
 import { PLANS } from "@/lib/types";
 
-const wechatQr = process.env.NEXT_PUBLIC_WECHAT_QR_URL || "/wechat-qr.png";
-const alipayQr = process.env.NEXT_PUBLIC_ALIPAY_QR_URL || "/alipay-qr.png";
+const wechatQr = "/wechat-qr-20260601.png";
+const alipayQr = "/alipay-qr-20260601.png";
 
 export default function HomePage() {
   return (
